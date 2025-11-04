@@ -220,4 +220,7 @@ scripts/test.py
 # =========================
 outputs/*
 !outputs/.gitkeep
+data/traces_strava.zip
 
+# Archives téléchargées
+*.zip
