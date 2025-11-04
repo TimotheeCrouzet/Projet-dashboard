@@ -205,3 +205,19 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# macOS
+.DS_Store
+
+# Données locales / sorties
+
+data/raw/gpx
+data/dataset.csv
+data/dataset_enriched.csv
+scripts/test.py
+
+# Sorties générées (images, graphes, etc.)
+# =========================
+outputs/*
+!outputs/.gitkeep
+
