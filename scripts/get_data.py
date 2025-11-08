@@ -8,7 +8,6 @@ import os
 import urllib.request
 import zipfile
 
-# URL publique directe vers ton ZIP sur GitHub (remplace si besoin)
 URL = "https://github.com/TimotheeCrouzet/Projet-dashboard/releases/download/v1.0.3/gpx.zip"
 
 # Dossier de destination
@@ -25,7 +24,7 @@ def extract_zip(zip_path, dest_dir):
     print(f"Décompression de {zip_path} → {dest_dir}")
     with zipfile.ZipFile(zip_path, "r") as z:
         z.extractall(dest_dir)
-    print("Extraction terminée ✅")
+    print("Extraction terminée ")
 
 def main():
     os.makedirs(RAW_DIR, exist_ok=True)

@@ -215,12 +215,14 @@ data/raw/gpx
 data/dataset.csv
 data/dataset_enriched.csv
 scripts/test.py
+scripts/histo.py
 
 # Sorties générées (images, graphes, etc.)
 # =========================
 outputs/*
 !outputs/.gitkeep
 data/traces_strava.zip
+appGPT.py
 
 # Archives téléchargées
 *.zip
