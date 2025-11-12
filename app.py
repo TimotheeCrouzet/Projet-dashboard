@@ -8,14 +8,14 @@ from scripts.data_utils import load_data, preparation
 
 #--Configuration de la page Streamlit--
 st.set_page_config(page_title="Projet Dashboard", layout="wide")
-st.title("Projet Dashboard - Analyse des Activités Sportives")
+st.title("Analyse des Activités Sportives")
 
 @st.cache_data(show_spinner=False)
 def cached_preparation():
     return preparation()
 
 
-(summary, activity_available, distance_min, distance_max, 
+(raw_points, summary, activity_available, distance_min, distance_max, 
  distance_total, total_traces, dplus_min, dplus_max, 
  dplus_total, duration_heures) = cached_preparation()
 
@@ -61,6 +61,7 @@ mask = (
 
 filtered_summary = summary[mask]
 
+
 if filtered_summary.empty:
     st.info("Aucune donnée ne correspond aux filtres sélectionnés.")
     st.stop()
@@ -88,7 +89,7 @@ fig_pie = px.pie(
     data_frame = activity_counts, 
     names="activity_type", 
     values="count",
-    title="Répartition des types d'activités",
+    title="",
     color_discrete_sequence=px.colors.qualitative.Set2,
     hole=0,
 )
@@ -101,7 +102,7 @@ with col1:
     fig_dist = px.histogram(
         filtered_summary, 
         x="total_distance_km", 
-        nbins=30,
+        nbins=50,
         title="Distribution des distances (km)",
         labels={"total_distance_km": "Distance (km)"},
         color_discrete_sequence=["#636EFA"],
@@ -111,7 +112,7 @@ with col2:
     fig_dplus = px.histogram(
         filtered_summary, 
         x="total_dplus_m", 
-        nbins=30,
+        nbins=50,
         title="Distribution du dénivelé positif (m)",
         labels={"total_dplus_m": "D+ (m)"},
         color_discrete_sequence=["#EF553B"],
@@ -130,9 +131,92 @@ fig_scatter = px.scatter(
         "total_dplus_m": "D+ (m)", 
         "activity_type": "Type d'activité"
     },
-    title="Distance vs D+",
+    title="",
 )
 st.plotly_chart(fig_scatter, width='stretch')
 
+#---carte des points de départ---
+st.subheader("Carte des points de départ des activités")
 
+map_data = filtered_summary.dropna(subset=["lat_start", "lon_start"])
 
+if map_data.empty:
+    st.info("Aucune donnée de localisation disponible pour les activités filtrées.")
+else:
+    nb_points = st.slider(
+        "Nombre de points à afficher sur la carte", 
+        min_value=50,
+        max_value=len(map_data),
+        value=min(50, len(map_data)),
+        step=50,
+        key="map_points_slider"
+    )
+    map_subset = map_data.nlargest(nb_points, "total_distance_km")
+    fig_map = px.scatter_map(
+        map_subset,
+        lat="lat_start",
+        lon="lon_start",
+        color = "activity_type",
+        hover_data={
+            "file_name": True,
+            "total_distance_km": ":.1f",
+            "total_dplus_m": ":.0f",
+            "duration_heures": ":.1f",
+            "lat_start": False,
+            "lon_start": False,
+        },
+        map_style="open-street-map",
+        zoom=5,
+    )
+    st.plotly_chart(fig_map, width='stretch')
+    
+
+#---cartes de toutes les activités---
+trace_limit = st.slider(
+    "Nombre de traces",
+    min_value=5,
+    max_value=min(100, len(filtered_summary)),
+    value=30,
+    step=5,
+)
+selected_traces = (
+    filtered_summary.sort_values("total_distance_km", ascending=False)
+    .head(trace_limit)
+)
+
+list_trace_ids = selected_traces[["file_name", "track_id"]].values.tolist()
+
+raw_points_subset = raw_points.merge(
+    pd.DataFrame(list_trace_ids, columns=["file_name", "track_id"]),
+    on=["file_name", "track_id"],
+    how="inner",
+)   
+#Comme on part du df d'origine, on ajoute les infos de résumé.
+raw_points_subset = raw_points_subset.merge(
+    selected_traces[["file_name", "track_id", "total_distance_km", "total_dplus_m", "activity_type"]],
+    on=["file_name", "track_id"],
+    how="left",
+)
+
+raw_points_subset = raw_points_subset.sort_values(["file_name", "track_id", "time"])
+raw_points_subset["trace_id"] = raw_points_subset["file_name"] + "_" + raw_points_subset["track_id"].astype(str)
+# Nettoyage des colonnes redondantes
+raw_points_subset = raw_points_subset.drop(columns="activity_type_x")
+raw_points_subset = raw_points_subset.rename(columns={"activity_type_y": "activity_type"})
+
+st.subheader("Carte des activités")
+fig_traces = px.line_map(
+    data_frame=raw_points_subset,
+    lat="lat",
+    lon="lon",
+    color="activity_type",      
+    line_group="trace_id",
+    hover_data={
+        "file_name": True,
+        "total_distance_km": ":.1f",
+        "total_dplus_m": ":.0f",
+    },
+    map_style="open-street-map",
+    zoom=5,
+)
+st.plotly_chart(fig_traces, width="stretch")

@@ -13,23 +13,17 @@ import pandas as pd
 from tqdm.auto import tqdm 
 tqdm.pandas(desc=" Enrichissement")  
 
-# ============================
-# Paramètres principaux
-# ============================
+#---Paramètres principaux---
 
 INPUT_CSV = os.path.join("data", "dataset.csv")
 OUTPUT_CSV = os.path.join("data", "dataset_enriched.csv")
 
 ALT_WINDOW = 7
 DPLUS_EPS = 0.8
-SLOPE_WINDOW_M = 40.0
-MOVING_SPEED_MIN = 1.0
 MAX_STEP_JUMP_M = 200.0
 
 
 #---Chargement & préparation---
-
-
 if not os.path.exists(INPUT_CSV):
     raise FileNotFoundError(f"Fichier introuvable : {INPUT_CSV}")
 
@@ -51,9 +45,7 @@ df["track_id"] = df.groupby("file_name").ngroup()
 df["point_idx"] = df.groupby("track_id").cumcount()
 
 
-#---Lissage altitude (médian)---
-
-
+#---Lissage altitude pour éviter des D+ faussés---
 def median_filter_series(s: pd.Series, window: int) -> pd.Series:
     if window is None or window < 3:
         return s
@@ -81,45 +73,15 @@ def enrich_group(g: pd.DataFrame) -> pd.DataFrame:
         g["time_s"] = (g["time"] - t0).dt.total_seconds()
     else:
         g["time_s"] = np.arange(len(g), dtype=float)
-
-    # --- moving_time_s (ne cumule que si speed_kmh > seuil) ---
-    spd = g["speed_kmh"].copy()
-    dt = g["time_s"].diff().fillna(0.0)
-    with np.errstate(divide='ignore', invalid='ignore'):
-        est_speed = (g["distance_step_m"] / dt.replace(0, np.nan)) * 3.6
-    spd = spd.fillna(est_speed)
-
-    moving_mask = spd > MOVING_SPEED_MIN
-    g["moving_time_s"] = (dt.where(moving_mask, 0.0)).cumsum()
-
-    # --- vitesse lissée ---
-    g["speed_smooth_kmh"] = spd.rolling(window=7, min_periods=1, center=True).mean()
-
-    # --- pente locale (%) sur ~SLOPE_WINDOW_M ---
-    dist = g["distance_m"].to_numpy(dtype=float)
-    alt = g["altitude_smooth_m"].to_numpy(dtype=float)
-    slope = np.zeros(len(g), dtype=float)
-    for i in range(len(g)):
-        target = dist[i] + SLOPE_WINDOW_M
-        j = np.searchsorted(dist, target, side="left")
-        if j >= len(g):
-            j = len(g) - 1
-        dd = dist[j] - dist[i]
-        dz = alt[j] - alt[i]
-        slope[i] = (dz / dd * 100.0) if dd > 0 else 0.0
-    g["slope_pct"] = slope
-
     return g
 
 
 #---Appliquer l’enrichissement (avec barre tqdm)---
 
-
 df = df.groupby("track_id", group_keys=False).progress_apply(enrich_group)
 
 
 #---Normalisation activité & date---
-
 
 type_map = {
     "Ride": "Road",
@@ -141,7 +103,6 @@ df["date"] = df["time"].dt.tz_convert("Europe/Paris").dt.date
 
 
 #---Sauvegarde---
-
 
 os.makedirs("data", exist_ok=True)
 df.to_csv(OUTPUT_CSV, index=False)

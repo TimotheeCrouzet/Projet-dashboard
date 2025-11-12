@@ -1,1 +1,6 @@
-pr le moment jai téléchargé, gpxgpy, pandas, matplotlib, plotly, streamlit
+gpxpy
+pandas
+matplotlib
+plotly
+streamlit
+tqdm

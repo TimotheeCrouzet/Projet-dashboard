@@ -1,4 +1,3 @@
-# scripts/get_data.py
 """
 Télécharge les données brutes (GPX) depuis la release GitHub
 et les stocke dans data/raw/, sans modification.

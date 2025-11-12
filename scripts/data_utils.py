@@ -24,12 +24,11 @@ def load_data():
     
     summary["total_distance_km"] = summary["total_distance_m"] / 1000
 
-    return summary
+    return df,summary
 
 
 def preparation():
-    summary = load_data()
-
+    raw_points, summary = load_data()
     activity_available = summary["activity_type"].unique().tolist()
     distance_min = float(summary["total_distance_km"].min())
     distance_max = float(summary["total_distance_km"].max()) + 1
@@ -45,14 +44,8 @@ def preparation():
     summary["duration_heures"] = duration_heures
 
     
-    return (summary, activity_available, distance_min, distance_max, 
+    return (raw_points, summary, activity_available, distance_min, distance_max, 
             distance_total, total_traces, dplus_min, dplus_max, dplus_total, duration_heures)
 
-if __name__ == "__main__":
-    summary = load_data()
-    print(
-        summary["activity_type"]
-          .value_counts()
-          .fillna("Inconnu")
-          .reset_index()
-    )
+
+
