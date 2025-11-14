@@ -56,7 +56,7 @@ Le fichier final data/dataset_enriched.csv est alors généré et prêt à être
 - Option 2 — Télécharger directement le dataset final
 Pour éviter le temps de calcul, vous pouvez directement télécharger le fichier prêt à l’emploi :
 [lien](https://github.com/TimotheeCrouzet/Projet-dashboard/releases/download/v1.0.0/dataset_enriched.csv)
-- Déposez simplement ce fichier dans le dossier : data/
+Déposez simplement ce fichier dans le dossier : data/
 ```
 Projet-dashboard/
 └── data/
@@ -83,7 +83,8 @@ Le Dashboard affiche différentes visualisations interactives :
 
 ## Data
 ### Origine des données
-Les données proviennent de sorties Strava réelles exportées au format GPX, puis publiées en accès libre sur le dépôt GitHub du projet.
+Les données proviennent de sorties Strava réelles exportées au format GPX, puis publiées en accès libre dans les releases du dépôt GitHub du projet: [lien](https://github.com/TimotheeCrouzet/Projet-dashboard/releases/download/v1.0.3/gpx.zip)
+
 Elles peuvent être téléchargées automatiquement grâce au script: 
 python scripts/get_data.py
 
