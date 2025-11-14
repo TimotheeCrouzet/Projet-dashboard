@@ -71,7 +71,7 @@ with open(OUT_CSV, "w", newline="", encoding="utf-8") as csvfile:
                                 except Exception:
                                     pass
 
-                        # --- Vitesse (extensions ou calculée) ---
+                        # --- Vitesse (extensions ou calculée) --- (On ne s'en sert pas pour l'instant)
                         speed_kmh = 0.0
                         if point.extensions:
                             for ext in point.extensions:

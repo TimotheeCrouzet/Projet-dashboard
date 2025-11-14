@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
 enrich_dataset.py
 -----------------
@@ -105,7 +102,7 @@ df["date"] = df["time"].dt.tz_convert("Europe/Paris").dt.date
 #---Sauvegarde---
 
 os.makedirs("data", exist_ok=True)
+print("Création du CSV (~30 secondes)...")
 df.to_csv(OUTPUT_CSV, index=False)
-print(df.head())
 print(f" Enrichi → {OUTPUT_CSV}")
-print("Colonnes disponibles :", ", ".join(df.columns))
+

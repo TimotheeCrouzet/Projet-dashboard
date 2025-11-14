@@ -4,9 +4,36 @@ Ce projet est une version 1 d’une application gratuite permettant d’analyser
 L’idée est d’offrir une alternative libre aux plateformes payantes comme Strava Premium ou Veloviewer, en proposant des statistiques et visualisations interactives
 
 ## User Guide
-### Bibliothèque nécéssaires
-Avant de lancer le projet, installez les bibliothèques nécessaires :
+## Prérequis
+Git LFS (Large File Storage) — requis pour télécharger les gros fichiers du dépôt
+Installer Git LFS:
+- macOS (Homebrew)
 ```bash
+brew install git-lfs
+git lfs install
+```
+- Ubuntu/Debian
+```bash
+sudo apt-get update
+sudo apt-get install git-lfs
+git lfs install
+```
+- Windows (Chocolatey)
+```bash
+choco install git-lfs
+git lfs install
+```
+Vous pouvez maintenant cloner le repo:
+```bash
+git clone https://github.com/TimotheeCrouzet/Projet-dashboard.git
+cd Projet-dashboard
+```
+### Bibliothèque nécéssaires
+Avant de lancer le projet, créez un environnement virtuel puis installez les bibliothèques nécessaires :
+```bash
+python3 -m venv .venv
+source .venv/bin/activate      # sous macOS/Linux
+ .venv\Scripts\activate       # sous Windows PowerShell
 pip install -r requirements.txt
 ```
 ### Préparation des données
@@ -40,6 +67,8 @@ Une fois le fichier data/dataset_enriched.csv disponible (créé ou télécharg�
 ```bash
 python main.py
 ```
+Remarque: Si c'est la première fois que vous utilisiez streamlit un message peut s'afficher. Vous pouvez l'ignorer en faisant entrée
+
 
 ### Utiliser le Dashboard
 Le Dashboard affiche différentes visualisations interactives :
@@ -72,7 +101,7 @@ Le fichier principal utilisé par le Dashboard est : data/dataset_enriched.csv
 | `distance_m`    | Distance cumulée depuis le départ | m            |
 | `dplus_m_cum`   | Dénivelé positif cumulé           | m            |
 | `speed_kmh`     | Vitesse instantanée               | km/h         |
-| `time`          | Heured UTC du point               | Datetime     |
+| `time`          | Heure UTC du point               | Datetime     |
 
 ### Taille et format
 - Format : CSV (UTF-8)
@@ -157,9 +186,9 @@ L’intérêt du projet repose avant tout sur le plaisir de la donnée : transfo
 
 ## Copyright
 Je déclare sur l’honneur que l’ensemble du code fourni dans ce projet a été rédigé par moi-même, à l’exception des lignes explicitement mentionnées ci-dessous:
-
-| Fichier                     | Lignes concernées                                                                | Source / Outil | Explication                                                                                                                                                                            |
-| --------------------------- | ------------------------------------------------------------------------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `scripts/enrich_dataset.py` | Bloc de conversion de dates :<br>`if str(df["time"].dtype) == "datetime64[ns]": ...` | ChatGPT        | Ce bloc m’a été suggéré pour corriger un problème de fuseau horaire lors du traitement des timestamps. Il convertit les dates en UTC puis en heure locale (Europe/Paris).              |
-| `scripts/create_dataset.py` | Quelques corrections mineures de syntaxe (boucles, indentation, agrégations Pandas)  | ChatGPT        | ChatGPT m’a aidé ponctuellement à **débugger** des erreurs de syntaxe et de typage, sans générer le code complet.                                                                      |
-| Global                      | Suggestions de complétion automatique                                                | GitHub Copilot | Copilot a été utilisé comme **aide à la saisie** pour des portions de code répétitives (par ex. création de colonnes, boucles). Aucun bloc complet n’a été copié d’une source externe. |
+| Fichier                     | Ligne(s) concernée(s)                                                                                 | Source / Outil | Explication                                                                                                                                                                          |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `scripts/enrich_dataset.py` | Bloc de conversion de dates :<br>`if str(df["time"].dtype) == "datetime64[ns]": ...`                  | ChatGPT        | Suggéré pour corriger un problème de fuseau horaire lors du traitement des timestamps. Il convertit les dates en UTC puis en heure locale (Europe/Paris).                            |
+| `scripts/create_dataset.py` | Quelques corrections mineures de syntaxe (boucles, indentation, agrégations Pandas)                   | ChatGPT        | ChatGPT m’a aidé ponctuellement à déboguer des erreurs de syntaxe et de typage, sans générer le code complet.                                                                        |
+| `scripts/get_data.py`       | Refactorisation complète du téléchargement (gestion d’erreurs, vérification SSL, écriture par chunks) | ChatGPT        | Code revu pour le rendre plus robuste : ajout de `requests` avec `certifi`, gestion de fichiers temporaires et suppression des erreurs liées aux différences d’environnement.        |
+| Global                      | Suggestions de complétion automatique                                                                 | GitHub Copilot | Copilot a été utilisé comme aide à la saisie pour des portions de code répétitives (par ex. création de colonnes ou boucles). Aucun bloc complet n’a été copié d’une source externe. |
