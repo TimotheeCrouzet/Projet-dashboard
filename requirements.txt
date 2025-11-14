@@ -1,5 +1,5 @@
 gpxpy
-pandas
+pandas==2.3.3
 matplotlib
 plotly
 streamlit
